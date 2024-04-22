@@ -31,3 +31,6 @@ The code for running the training is in `train.py`. The code for evaluation is i
 Helper functions for preprocessing are in `preprocessing.py`.
 Functions for the training and evaluation loop are in `train_functions.py`.
 And the components of the pipeline (Embedding module, encoders, combination module and MLP) are in `modules.py`.
+Some helper functions are defined in `my_utils.py `.
+An analysis of the errors of the models along with an examination of bias can be found in `error_analysis.ipynb`.
+
