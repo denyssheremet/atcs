@@ -1,7 +1,8 @@
 from tqdm import tqdm
 import torch
 from torch.utils.tensorboard import SummaryWriter
-
+import os
+import pickle
 
 def train_epoch(model, loader, optimizer, loss_module):
     model.train()
@@ -61,6 +62,10 @@ def train_loop(model, optimizer, loss_module, train_loader, val_loader, checkpoi
     lr = 0.1
     last_acc, best_acc = -1, -1
     epoch = -1
+    try:
+        os.remove(checkpoint_path) # need to remove it first, torch.save doesn't overwrite
+    except:
+        pass
     
     while lr > 1e-5:
         epoch += 1
@@ -82,6 +87,10 @@ def train_loop(model, optimizer, loss_module, train_loader, val_loader, checkpoi
         # save best checkpoint if necessary
         if acc > best_acc:
             best_acc = acc
+            try:
+                os.remove(checkpoint_path) # need to remove it first, torch.save doesn't overwrite
+            except:
+                pass
             model.save_model(checkpoint_path)
         
         # if val acc goes down, divide lr by 5

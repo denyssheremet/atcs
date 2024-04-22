@@ -69,13 +69,30 @@ def get_unique_tokens(ds_train_tok, ds_val_tok, ds_test_tok):
     return all_unique_toks
 
 def setup_glove(all_unique_toks):
-    # Glove
-    glove_vectors = GloVe(name='840B')
-    glove_vocab = build_vocab_from_iterator(
-        [iter(all_unique_toks)],
-        specials=['<unk>'],
-        special_first=True,
-    )
+    try: 
+        with open('glove_vectors.pickle', 'rb') as handle:
+            glove_vectors = pickle.load(handle)
+        print('loading glove vectors...')
+    except: 
+        glove_vectors = GloVe(name='840B')
+        with open('glove_vectors.pickle', 'wb') as handle:
+            pickle.dump(glove_vectors, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            
+    # glove vocab     
+    try: 
+        with open('glove_vocab.pickle', 'rb') as handle:
+            glove_vocab = pickle.load(handle)
+        print('loading glove vocab...')
+        
+    except: 
+        glove_vocab = build_vocab_from_iterator(
+            [iter(all_unique_toks)],
+            specials=['<unk>'],
+            special_first=True,
+        )
+        with open('glove_vocab.pickle', 'wb') as handle:
+            pickle.dump(glove_vocab, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            
     return glove_vectors, glove_vocab
 
 

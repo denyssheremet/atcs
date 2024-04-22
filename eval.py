@@ -10,6 +10,7 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 import argparse
+from my_utils import load_from_pickle, save_to_pickle
 
 
 parser = argparse.ArgumentParser(description='ATCS')
@@ -22,47 +23,62 @@ args = parser.parse_args()
 # define the batch size
 bs = 64
 
-# load the dataset
-ds_train, ds_val, ds_test = load_dataset("stanfordnlp/snli", split=['train', 'validation', 'test'])
+try:
+    train_loader = load_from_pickle("pickle/train_loader.pickle")
+    val_loader   = load_from_pickle("pickle/val_loader.pickle")
+    test_loader  = load_from_pickle("pickle/test_loader.pickle")
+    
+    glove_vectors = load_from_pickle("pickle/glove_vectors.pickle")
+    glove_vocab   = load_from_pickle("pickle/glove_vocab.pickle")
+    
+except: 
+    # load the dataset
+    ds_train, ds_val, ds_test = load_dataset("stanfordnlp/snli", split=['train', 'validation', 'test'])
 
-# convert to lowercase and tokenize
-ds_train_tok, ds_val_tok, ds_test_tok = lower_and_tokenize(ds_train, ds_val, ds_test)
+    # convert to lowercase and tokenize
+    ds_train_tok, ds_val_tok, ds_test_tok = lower_and_tokenize(ds_train, ds_val, ds_test)
 
-# get a list of all the unique tokens in the dataset
-all_unique_toks = get_unique_tokens(ds_train_tok, ds_val_tok, ds_test_tok)
+    # get a list of all the unique tokens in the dataset
+    all_unique_toks = get_unique_tokens(ds_train_tok, ds_val_tok, ds_test_tok)
 
-# set up the glove vectors and vocabulary
-glove_vectors, glove_vocab = setup_glove(all_unique_toks)
+    # set up the glove vectors and vocabulary
+    glove_vectors, glove_vocab = setup_glove(all_unique_toks)
 
-# convert the tokens to indices, and remove items with label -1
-ds_train_prep, ds_val_prep, ds_test_prep = tokens_to_indexes_and_filter_labels(ds_train_tok, ds_val_tok, ds_test_tok, glove_vocab)
+    # convert the tokens to indices, and remove items with label -1
+    ds_train_prep, ds_val_prep, ds_test_prep = tokens_to_indexes_and_filter_labels(ds_train_tok, ds_val_tok, ds_test_tok, glove_vocab)
 
-# create the dataloaders
-train_loader = DataLoader(ds_train_prep, collate_fn=collate_fn, batch_size=bs, shuffle=True)
-val_loader   = DataLoader(ds_val_prep, collate_fn=collate_fn, batch_size=bs, shuffle=True)
-test_loader  = DataLoader(ds_test_prep, collate_fn=collate_fn, batch_size=bs, shuffle=True)
+    # create the dataloaders
+    train_loader = DataLoader(ds_train_prep, collate_fn=collate_fn, batch_size=bs, shuffle=True)
+    val_loader   = DataLoader(ds_val_prep, collate_fn=collate_fn, batch_size=bs, shuffle=True)
+    test_loader  = DataLoader(ds_test_prep, collate_fn=collate_fn, batch_size=bs, shuffle=True)
+    
+    # save to make it quicker next time
+    save_to_pickle(train_loader, "pickle/train_loader.pickle")
+    save_to_pickle(val_loader,   "pickle/val_loader.pickle")
+    save_to_pickle(test_loader,  "pickle/test_loader.pickle")
+
 
 # initialize the chosen encoder
 if args.encoder == 0:
     print("Baseline")
     encoder = BaselineEncoder()
     mlp_in_dim = 1200
-    checkpoint_path = "baseline_model.pickle"
+    checkpoint_path = "checkpoints/baseline_model.pickle"
 elif args.encoder == 1:
     print("LSTM")
     encoder = LSTMEncoder()
-    mlp_in_dim = 1200
-    checkpoint_path = "lstm.pickle"
+    mlp_in_dim = 2048*4
+    checkpoint_path = "checkpoints/lstm.pickle"
 elif args.encoder == 2:
     print("BiLSTM")
     encoder = BiLSTMEncoder()
-    mlp_in_dim = 2400    
-    checkpoint_path = "bilstm.pickle"
+    mlp_in_dim = 2048*2*4    
+    checkpoint_path = "checkpoints/bilstm.pickle"
 elif args.encoder == 3:
     print("PooledBiLSTM")
     encoder = PooledBiLSTMEncoder()
-    mlp_in_dim = 2400    
-    checkpoint_path = "pooledbilstm.pickle"
+    mlp_in_dim = 2048*2*4        
+    checkpoint_path = "checkpoints/pooledbilstm.pickle"
 else:
     raise Exception("incorrect choice of encoders. Look at the arguments.")
     
