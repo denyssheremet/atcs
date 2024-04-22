@@ -65,12 +65,12 @@ if args.encoder == 0:
 elif args.encoder == 1:
     print("LSTM")
     encoder = LSTMEncoder()
-    mlp_in_dim = 2048*4
+    mlp_in_dim = 300*4
     checkpoint_path = "checkpoints/lstm.pickle"
 elif args.encoder == 2:
     print("BiLSTM")
     encoder = BiLSTMEncoder()
-    mlp_in_dim = 2048*2*4    
+    mlp_in_dim = 300*2*4    
     checkpoint_path = "checkpoints/bilstm.pickle"
 elif args.encoder == 3:
     print("PooledBiLSTM")

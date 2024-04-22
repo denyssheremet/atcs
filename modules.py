@@ -41,7 +41,7 @@ class BaselineEncoder(nn.Module):
 class LSTMEncoder(nn.Module):
     def __init__(self):
         super().__init__()
-        self.lstm = nn.LSTM(300,2048,batch_first=True)
+        self.lstm = nn.LSTM(300,300,batch_first=True)
     
     # the baseline encoder takes the average across word embeddings in a sentence
     def forward(self, x):
@@ -54,7 +54,7 @@ class LSTMEncoder(nn.Module):
 class BiLSTMEncoder(nn.Module):
     def __init__(self):
         super().__init__()
-        self.lstm = nn.LSTM(300,2048, batch_first=True, bidirectional=True)
+        self.lstm = nn.LSTM(300,300, batch_first=True, bidirectional=True)
     
     # the baseline encoder takes the average across word embeddings in a sentence
     def forward(self, x):
