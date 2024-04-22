@@ -1,7 +1,8 @@
 # atcs
 
 ### Installation
-Run `pip install -r requirements.txt`
+Run `pip install -r requirements.txt` to install the requirements. 
+
 requirements:
  - torch
  - datasets
@@ -9,11 +10,13 @@ requirements:
 
 ### Training
 To run the training, run `python train.py` in the terminal. 
+
 Arguments: 
  - `--encoder` (int): 0=baseline, 1=lstm, 2=bi-lstm, 3=bi-lsm with max pooling
 
 ### Evaluation
 For evaluation, run `python eval.py` in the terminal.
+
 Arguments:
  - `--dataset` (string): options: "snli" or "senteval".
 
